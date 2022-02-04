@@ -60,6 +60,8 @@ set(XRT_XDP_PROFILE_HAL_DEVICE_OFFLOAD_PLUGIN_DIR "${CMAKE_CURRENT_SOURCE_DIR}/p
 set(XRT_XDP_PROFILE_HW_EMU_DEVICE_OFFLOAD_PLUGIN_DIR "${CMAKE_CURRENT_SOURCE_DIR}/profile/plugin/device_offload/hw_emu")
 set(XRT_XDP_PROFILE_DEVICE_AIE_TRACE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/profile/device/aie_trace")
 set(XRT_XDP_AIE_TRACE_PLUGIN_DIR         "${CMAKE_CURRENT_SOURCE_DIR}/profile/plugin/aie_trace")
+set(XRT_XDP_AIE_TRACE_X86_DIR            "${CMAKE_CURRENT_SOURCE_DIR}/profile/plugin/aie_trace/x86")
+set(XRT_XDP_AIE_TRACE_EDGE_DIR           "${CMAKE_CURRENT_SOURCE_DIR}/profile/plugin/aie_trace/edge")
 set(XRT_XDP_AIE_TRACE_WRITER_DIR         "${CMAKE_CURRENT_SOURCE_DIR}/profile/writer/aie_trace")
 set(XRT_XDP_AIE_DEBUG_PLUGIN_DIR         "${CMAKE_CURRENT_SOURCE_DIR}/profile/plugin/aie_debug")
 set(XRT_XDP_AIE_DEBUG_WRITER_DIR         "${CMAKE_CURRENT_SOURCE_DIR}/profile/writer/aie_debug")
@@ -253,14 +255,24 @@ file(GLOB XRT_XDP_SYSTEM_COMPILER_PLUGIN_FILES
   "${XRT_XDP_SYSTEM_COMPILER_PLUGIN_DIR}/*.h"
   "${XRT_XDP_SYSTEM_COMPILER_PLUGIN_DIR}/*.cpp"
   )
+file(GLOB XRT_XDP_AIE_TRACE_PLUGIN_X86_FILES
+  "${XRT_XDP_AIE_TRACE_PLUGIN_DIR}/*.h"
+  "${XRT_XDP_AIE_TRACE_PLUGIN_DIR}/*.cpp"
+  "${XRT_XDP_AIE_TRACE_X86_DIR}/*.h"
+  "${XRT_XDP_AIE_TRACE_X86_DIR}/*.cpp"
+  "${XRT_XDP_AIE_TRACE_WRITER_DIR}/*.h"
+  "${XRT_XDP_AIE_TRACE_WRITER_DIR}/*.cpp"
+  )
 
-file(GLOB XRT_XDP_AIE_TRACE_PLUGIN_FILES
+file(GLOB XRT_XDP_AIE_TRACE_PLUGIN_EDGE_FILES
   "${XRT_XDP_PROFILE_DEVICE_AIE_TRACE_DIR}/*.h"
   "${XRT_XDP_PROFILE_DEVICE_AIE_TRACE_DIR}/*.cpp"
   "${XRT_XDP_PROFILE_HAL_DEVICE_DIR}/*.h"
   "${XRT_XDP_PROFILE_HAL_DEVICE_DIR}/*.cpp"
   "${XRT_XDP_AIE_TRACE_PLUGIN_DIR}/*.h"
   "${XRT_XDP_AIE_TRACE_PLUGIN_DIR}/*.cpp"
+  "${XRT_XDP_AIE_TRACE_EDGE_DIR}/*.h"
+  "${XRT_XDP_AIE_TRACE_EDGE_DIR}/*.cpp"
   "${XRT_XDP_AIE_TRACE_WRITER_DIR}/*.h"
   "${XRT_XDP_AIE_TRACE_WRITER_DIR}/*.cpp"
   )
@@ -407,6 +419,7 @@ set_target_properties(xdp_hw_emu_device_offload_plugin PROPERTIES VERSION ${XRT_
 # which is same condition that compiles edge.
 if (DEFINED XRT_AIE_BUILD AND ${XRT_NATIVE_BUILD} STREQUAL "no")
   # AIE Profile plugin
+  set(CMAKE_CXX_FLAGS "-DEDGE_BUILD ${CMAKE_CXX_FLAGS}")
   add_library(xdp_aie_profile_plugin MODULE ${XRT_XDP_PROFILE_AIE_PLUGIN_FILES})
   add_dependencies(xdp_aie_profile_plugin xdp_core xrt_core)
   target_link_libraries(xdp_aie_profile_plugin PRIVATE xdp_core xrt_core metal xaiengine)
@@ -417,7 +430,7 @@ if (DEFINED XRT_AIE_BUILD AND ${XRT_NATIVE_BUILD} STREQUAL "no")
   )
 
   # AIE Trace plugin
-  add_library(xdp_aie_trace_plugin MODULE ${XRT_XDP_AIE_TRACE_PLUGIN_FILES})
+  add_library(xdp_aie_trace_plugin MODULE ${XRT_XDP_AIE_TRACE_PLUGIN_EDGE_FILES})
   add_dependencies(xdp_aie_trace_plugin xdp_core xrt_core)
   target_link_libraries(xdp_aie_trace_plugin PRIVATE xdp_core xrt_core metal xaiengine)
   set_target_properties(xdp_aie_trace_plugin PROPERTIES VERSION ${XRT_VERSION_STRING} SOVERSION ${XRT_SOVERSION})
@@ -433,6 +446,15 @@ if (DEFINED XRT_AIE_BUILD AND ${XRT_NATIVE_BUILD} STREQUAL "no")
   set_target_properties(xdp_aie_debug_plugin PROPERTIES VERSION ${XRT_VERSION_STRING} SOVERSION ${XRT_SOVERSION})
 
   install (TARGETS xdp_aie_debug_plugin
+    LIBRARY DESTINATION ${XRT_INSTALL_LIB_DIR}/xrt/module
+  )
+else()
+  add_library(xdp_aie_trace_plugin MODULE ${XRT_XDP_AIE_TRACE_PLUGIN_X86_FILES})
+  add_dependencies(xdp_aie_trace_plugin xdp_core xrt_core)
+  target_link_libraries(xdp_aie_trace_plugin PRIVATE xdp_core xrt_core)
+  set_target_properties(xdp_aie_trace_plugin PROPERTIES VERSION ${XRT_VERSION_STRING} SOVERSION ${XRT_SOVERSION})
+
+  install (TARGETS xdp_aie_trace_plugin
     LIBRARY DESTINATION ${XRT_INSTALL_LIB_DIR}/xrt/module
   )
 endif()

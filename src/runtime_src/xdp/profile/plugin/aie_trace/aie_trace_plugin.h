@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2020 Xilinx, Inc
+ * Copyright (C) 2020-2022 Xilinx, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License"). You may
  * not use this file except in compliance with the License. A copy of the
@@ -17,104 +17,47 @@
 #ifndef AIE_TRACE_PLUGIN_H
 #define AIE_TRACE_PLUGIN_H
 
-#include "xdp/profile/plugin/vp_base/vp_base_plugin.h"
-#include "core/edge/common/aie_parser.h"
-#include "xaiefal/xaiefal.hpp"
+#include <cstdint>
 
-extern "C" {
-#include <xaiengine.h>
-}
+#include "xdp/profile/plugin/vp_base/vp_base_plugin.h"
 
 namespace xdp {
 
-  class DeviceIntf;
-  class AIETraceOffload;
-  class AIETraceLogger;
+  // AIE trace configurations can be done in different ways depending
+  // on the platform.  For example, platforms like the VCK5000 or
+  // discovery platform, where the host code runs on the x86 and the AIE
+  // is not directly accessible, will require configuration be done via
+  // PS kernel. 
+  class AieTraceImpl
+  {
+  protected:
+    VPDatabase* db = nullptr;
+  public:
+    explicit AieTraceImpl(VPDatabase* database) : db(database) {}
+    AieTraceImpl() = delete;
+    virtual ~AieTraceImpl() = default;
 
-  using tile_type = xrt_core::edge::aie::tile_type;
+    virtual void updateDevice(void* handle) = 0;
+    virtual void flushDevice(void* handle) = 0;
+    virtual void finishFlushDevice(void* handle) = 0;
+
+    virtual uint64_t getNumStreams() { return 0; }
+    virtual uint64_t getDeviceId() { return 0; }
+    virtual bool isRuntimeMetrics() { return false; }
+  };
 
   class AieTracePlugin : public XDPPlugin
   {
-    public:
-      XDP_EXPORT
-      AieTracePlugin();
+  private:
+    AieTraceImpl* implementation;
 
-      XDP_EXPORT
-      ~AieTracePlugin();
-
-      XDP_EXPORT
-      void updateAIEDevice(void* handle);
-
-      XDP_EXPORT
-      void flushAIEDevice(void* handle);
-
-      XDP_EXPORT
-      void finishFlushAIEDevice(void* handle);
-
-      XDP_EXPORT
-      virtual void writeAll(bool openNewFiles);
-
-    private:
-      inline uint32_t bcIdToEvent(int bcId);
-      void releaseCurrentTileCounters(int numCoreCounters, int numMemoryCounters);
-      bool setMetrics(uint64_t deviceId, void* handle);
-      void setFlushMetrics(uint64_t deviceId, void* handle);
-      uint64_t getTraceStartDelayCycles(void* handle);
-
-      // Aie resource manager utility functions
-      bool tileHasFreeRsc(xaiefal::XAieDev* aieDevice, XAie_LocType& loc, const std::string& metricSet, bool useDelay);
-      void printTileStats(xaiefal::XAieDev* aieDevice, const tile_type& tile);
-
-      // Utility functions
-      std::string getMetricSet(void* handle);
-      std::vector<tile_type> getTilesForTracing(void* handle);
-
-    private:
-      // Runtime or compile-time specified trace metrics?
-      bool runtimeMetrics = true;
-
-      bool continuousTrace;
-      uint64_t offloadIntervalms;
-
-      // Trace Runtime Status
-      AieRC mConfigStatus = XAIE_OK;
-
-      std::vector<void*> deviceHandles;
-      std::map<uint64_t, void*> deviceIdToHandle;
-
-      typedef std::tuple<AIETraceOffload*, 
-                         AIETraceLogger*,
-                         DeviceIntf*> AIEData;
-
-      std::map<uint32_t, AIEData>  aieOffloaders;
-
-      // Types
-      typedef XAie_Events            EventType;
-      typedef std::vector<EventType> EventVector;
-      typedef std::vector<uint32_t>  ValueVector;
-
-      // Trace metrics
-      std::string metricSet;    
-      std::set<std::string> metricSets;
-      std::map<std::string, EventVector> coreEventSets;
-      std::map<std::string, EventVector> memoryEventSets;
-
-      // AIE profile counters
-      std::vector<xrt_core::edge::aie::tile_type> mCoreCounterTiles;
-      std::vector<std::shared_ptr<xaiefal::XAiePerfCounter>> mCoreCounters;
-      std::vector<std::shared_ptr<xaiefal::XAiePerfCounter>> mMemoryCounters;
-
-      // Counter metrics (same for all sets)
-      EventType   coreTraceStartEvent;
-      EventType   coreTraceEndEvent;
-      EventVector coreCounterStartEvents;
-      EventVector coreCounterEndEvents;
-      ValueVector coreCounterEventValues;
-
-      EventVector memoryCounterStartEvents;
-      EventVector memoryCounterEndEvents;
-      EventVector memoryCounterResetEvents;
-      ValueVector memoryCounterEventValues;
+  public:
+    XDP_EXPORT AieTracePlugin();
+    XDP_EXPORT ~AieTracePlugin();
+    XDP_EXPORT void updateAIEDevice(void* handle);
+    XDP_EXPORT void flushAIEDevice(void* handle);
+    XDP_EXPORT void finishFlushAIEDevice(void* handle);
+    XDP_EXPORT virtual void writeAll(bool openNewFiles);
   };
     
 }   

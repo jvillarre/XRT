@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2021 Xilinx, Inc
+ * Copyright (C) 2022 Xilinx, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License"). You may
  * not use this file except in compliance with the License. A copy of the
@@ -25,7 +25,7 @@ namespace xdp {
   AieTraceConfigWriter::AieTraceConfigWriter(const char* filename,
                uint64_t index,
                std::string m) :
-    VPWriter(filename), deviceIndex(index), traceMetricString(m)
+    VPWriter(filename), traceMetricString(m), deviceIndex(index)
   {
   }
 
@@ -111,7 +111,7 @@ namespace xdp {
 
         {
           bpt::ptree performance_counter_config;
-          for (int i=0; i <tile->core_trace_config.pc.size(); i++) {
+          for (uint64_t i=0; i <tile->core_trace_config.pc.size(); i++) {
             bpt::ptree counter;
             auto& ctr = tile->core_trace_config.pc[i];
             counter.put("start_event",   ctr.start_event);
@@ -200,7 +200,7 @@ namespace xdp {
 
         {
           bpt::ptree performance_counter_config;
-          for (int i=0; i <tile->memory_trace_config.pc.size(); i++) {
+          for (uint64_t i=0; i <tile->memory_trace_config.pc.size(); i++) {
             bpt::ptree counter;
             auto& ctr = tile->memory_trace_config.pc[i];
             counter.put("start_event",   ctr.start_event);
