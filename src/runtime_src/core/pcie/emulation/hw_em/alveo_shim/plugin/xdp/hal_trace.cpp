@@ -1,5 +1,6 @@
 /**
  * Copyright (C) 2022 Xilinx, Inc
+ * Copyright (C) 2022 Advanced Micro Devices, Inc. - All rights reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License"). You may
  * not use this file except in compliance with the License. A copy of the
@@ -24,9 +25,7 @@
 #include "hal_trace.h"
 #include "plugin_loader.h"
 
-namespace xdp {
-namespace hw_emu {
-namespace trace {
+namespace xdp::hw_emu::trace {
 
   // For both hardware emulation and hardware, we load the same XDP module
   void load()
@@ -56,13 +55,8 @@ namespace trace {
                                          unsigned long long int) ;
     hal_emu_generic_cb =
       reinterpret_cast<generic_type>(xrt_core::dlsym(handle, "hal_generic_cb")) ;
-    if (xrt_core::dlerror() != nullptr)
-      hal_emu_generic_cb = nullptr ;
-
     hal_emu_buffer_transfer_cb =
       reinterpret_cast<buffer_transfer_type>(xrt_core::dlsym(handle, "buffer_transfer_cb")) ;
-    if (xrt_core::dlerror() != nullptr)
-      hal_emu_buffer_transfer_cb = nullptr ;
   }
 
   void warning_callbacks()
@@ -134,6 +128,4 @@ namespace trace {
                                  m_buffer_id, m_size) ;
   }
 
-} // end namespace trace
-} // end namespace hw_emu
-} // end namespace xdp
+} // end namespace xdp::hw_emu::trace

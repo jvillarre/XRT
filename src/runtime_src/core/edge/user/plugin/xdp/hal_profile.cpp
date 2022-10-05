@@ -1,5 +1,6 @@
 /**
  * Copyright (C) 2020-2022 Xilinx, Inc
+ * Copyright (C) 2022 Advanced Micro Devices, Inc. - All rights reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License"). You may
  * not use this file except in compliance with the License. A copy of the
@@ -25,8 +26,7 @@
 #include "hal_profile.h"
 #include "plugin_loader.h"
 
-namespace xdp {
-namespace hal {
+namespace xdp::hal {
 
 std::function<void (bool, const char*, unsigned long long int)> generic_cb ;
 std::function<void (bool, bool, const char*, unsigned long long int,
@@ -45,11 +45,8 @@ std::function<void (bool, bool, const char*, unsigned long long int,
 
     generic_cb =
       reinterpret_cast<generic_type>(xrt_core::dlsym(handle, "hal_generic_cb"));
-    if (xrt_core::dlerror() != nullptr) generic_cb = nullptr ;
-
     buffer_transfer_cb =
       reinterpret_cast<buffer_transfer_type>(xrt_core::dlsym(handle, "buffer_transfer_cb")) ;
-    if (xrt_core::dlerror() != nullptr) buffer_transfer_cb = nullptr ;
   }
 
   // The warning function
@@ -128,5 +125,4 @@ std::function<void (bool, bool, const char*, unsigned long long int,
     }
   }
 
-} // end namespace hal
-} // end namespace xdp
+} // end namespace xdp::hal

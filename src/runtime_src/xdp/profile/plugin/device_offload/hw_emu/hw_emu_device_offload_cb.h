@@ -1,5 +1,6 @@
 /**
  * Copyright (C) 2022 Xilinx, Inc
+ * Copyright (C) 2022 Advanced Micro Devices, Inc. - All rights reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License"). You may
  * not use this file except in compliance with the License. A copy of the
@@ -17,14 +18,18 @@
 #ifndef HW_EMU_DEVICE_OFFLOAD_CB_DOT_H
 #define HW_EMU_DEVICE_OFFLOAD_CB_DOT_H
 
+#include "xdp/config.h"
+
 // These are the functions that are visible when the plugin is dynamically
 //  loaded.  They should be linked to callbacks in XRT via dlsym and then
 //  called directly.
 
 extern "C"
+XDP_EXPORT
 void updateDeviceHWEmu(void* handle) ;
 
 extern "C"
+XDP_EXPORT
 void flushDeviceHWEmu(void* handle) ;
 
 #endif

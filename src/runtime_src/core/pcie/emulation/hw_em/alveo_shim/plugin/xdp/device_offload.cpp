@@ -1,5 +1,6 @@
 /**
  * Copyright (C) 2022 Xilinx, Inc
+ * Copyright (C) 2022 Advanced Micro Devices, Inc. - All rights reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License"). You may
  * not use this file except in compliance with the License. A copy of the
@@ -23,8 +24,7 @@
 
 #include "device_offload.h"
 
-namespace xdp {
-namespace hw_emu {
+namespace xdp::hw_emu {
 namespace device_offload {
 
   void load()
@@ -40,17 +40,12 @@ namespace device_offload {
 
   void register_callbacks(void* handle)
   {
-    using cb_type = void (*)(void*) ;
+    using cb_type = void (*)(void*);
 
     update_device_cb =
-      reinterpret_cast<cb_type>(xrt_core::dlsym(handle, "updateDeviceHWEmu")) ;
-    if (xrt_core::dlerror() != nullptr)
-      update_device_cb = nullptr ;
-
+      reinterpret_cast<cb_type>(xrt_core::dlsym(handle, "updateDeviceHWEmu"));
     flush_device_cb =
-      reinterpret_cast<cb_type>(xrt_core::dlsym(handle, "flushDeviceHWEmu")) ;
-    if (xrt_core::dlerror() != nullptr)
-      flush_device_cb = nullptr ;
+      reinterpret_cast<cb_type>(xrt_core::dlsym(handle, "flushDeviceHWEmu"));
   }
 
   void warning_callbacks()
@@ -72,5 +67,4 @@ namespace device_offload {
       device_offload::flush_device_cb(handle) ;
   }
 
-} // end namespace hw_emu
-} // end namespace xdp
+} // end namespace xdp::hw_emu

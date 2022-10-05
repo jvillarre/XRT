@@ -6,8 +6,7 @@
 #include "core/common/dlfcn.h"
 #include "core/common/config_reader.h"
 
-namespace xdp {
-namespace hal {
+namespace xdp::hal {
 namespace device_offload {
 
   void load()
@@ -24,12 +23,12 @@ namespace device_offload {
  
   void register_functions(void* handle) 
   {
-    typedef void (*ftype)(void*) ;
-    update_device_cb = (ftype)(xrt_core::dlsym(handle, "updateDeviceHAL")) ;
-    if (xrt_core::dlerror() != NULL) update_device_cb = nullptr ;
+    using ftype = void (*)(void*);
 
-    flush_device_cb = (ftype)(xrt_core::dlsym(handle, "flushDeviceHAL")) ;
-    if (xrt_core::dlerror() != NULL) flush_device_cb = nullptr ;
+    update_device_cb =
+      reinterpret_cast<ftype>(xrt_core::dlsym(handle, "updateDeviceHAL"));
+    flush_device_cb =
+      reinterpret_cast<ftype>(xrt_core::dlsym(handle, "flushDeviceHAL"));
   }
 
   void warning_function()
@@ -59,5 +58,4 @@ namespace device_offload {
     }
   }
 
-} // end namespace hal
-} // end namespace xdp
+} // end namespace xdp::hal

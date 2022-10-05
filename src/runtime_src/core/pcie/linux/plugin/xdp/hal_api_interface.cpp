@@ -95,9 +95,10 @@ namespace xdphalinterface {
 
   void register_hal_interface_callbacks(void* handle)
   {
-    typedef void (*ftype)(unsigned int, void*) ;
-    cb = (ftype)(xrt_core::dlsym(handle, "hal_api_interface_cb_func")) ;
-    if (xrt_core::dlerror() != NULL) cb = nullptr ;
+    using ftype = void (*)(unsigned int, void*);
+
+    cb = reinterpret_cast<ftype>(xrt_core::dlsym(handle,
+                                                 "hal_api_interface_cb_func"));
   }
 
   int error_hal_interface_callbacks()
