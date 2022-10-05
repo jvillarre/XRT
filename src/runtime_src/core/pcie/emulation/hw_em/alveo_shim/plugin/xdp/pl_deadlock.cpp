@@ -46,8 +46,6 @@ namespace pl_deadlock {
 
     update_device_cb =
       reinterpret_cast<cb_type>(xrt_core::dlsym(handle, "updateDevicePLDeadlock"));
-    if (xrt_core::dlerror() != NULL)
-      update_device_cb = nullptr;
   }
 
   void warning_callbacks()
