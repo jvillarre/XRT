@@ -1,5 +1,6 @@
 /**
  * Copyright (C) 2021 Xilinx, Inc
+ * Copyright (C) 2022 Advanced Micro Devices, Inc. - All rights reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License"). You may
  * not use this file except in compliance with the License. A copy of the
@@ -19,8 +20,7 @@
 #include "core/common/dlfcn.h"
 #include <iostream>
 
-namespace xdp {
-namespace pl_deadlock {
+namespace xdp::pl_deadlock {
 
   void load()
   {
@@ -33,14 +33,12 @@ namespace pl_deadlock {
 
   void register_callbacks(void* handle)
   {
-    typedef void (*ftype)(void*) ;
+    using ftype = void (*)(void*);
 
-    update_device_cb = (ftype)(xrt_core::dlsym(handle, "updateDevicePLDeadlock"));
-    if (xrt_core::dlerror() != NULL)
-      update_device_cb = nullptr;
-    flush_device_cb = (ftype)(xrt_core::dlsym(handle, "flushDevicePLDeadlock"));
-    if (xrt_core::dlerror() != NULL)
-      flush_device_cb = nullptr;
+    update_device_cb =
+      reinterpret_cast<ftype>(xrt_core::dlsym(handle, "updateDevicePLDeadlock"));
+    flush_device_cb =
+      reinterpret_cast<ftype>(xrt_core::dlsym(handle, "flushDevicePLDeadlock"));
   }
 
   void warning_callbacks()
@@ -60,5 +58,4 @@ namespace pl_deadlock {
       flush_device_cb(handle);
   }
 
-} // end namespace pl_deadlock
-} // end namespace xdp
+} // end namespace xdp::pl_deadlock
