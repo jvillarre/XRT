@@ -1,5 +1,6 @@
 /**
  * Copyright (C) 2016-2020 Xilinx, Inc
+ * Copyright (C) 2022 Advanced Micro Devices, Inc. - All rights reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License"). You may
  * not use this file except in compliance with the License. A copy of the
@@ -28,9 +29,7 @@
 #include "xocl/core/context.h"
 #include "xocl/core/device.h"
 
-namespace xocl {
-
-  namespace profile {
+namespace xocl::profile {
 
     // All of the function pointers that will be dynamically linked to
     //  callback functions on the XDP plugin side
@@ -118,26 +117,14 @@ namespace xocl {
 
       using release_type    = void (*)() ;
 
-      counter_function_start_cb = reinterpret_cast<start_type>(xrt_core::dlsym(handle, "log_function_call_start")) ;
-      if (xrt_core::dlerror() != NULL) counter_function_start_cb = nullptr ;
-      
+      counter_function_start_cb = reinterpret_cast<start_type>(xrt_core::dlsym(handle, "log_function_call_start"));
       counter_function_end_cb = reinterpret_cast<end_type>(xrt_core::dlsym(handle, "log_function_call_end")) ;
-      if (xrt_core::dlerror() != NULL) counter_function_start_cb = nullptr ;
-      
       counter_kernel_execution_cb = reinterpret_cast<kernel_exec_type>(xrt_core::dlsym(handle, "log_kernel_execution")) ;
-      if (xrt_core::dlerror() != NULL) counter_kernel_execution_cb = nullptr ;
-      
       counter_cu_execution_cb = reinterpret_cast<cu_exec_type>(xrt_core::dlsym(handle, "log_compute_unit_execution")) ;
-      if (xrt_core::dlerror() != NULL) counter_cu_execution_cb = nullptr ;
-      
       counter_action_read_cb = reinterpret_cast<read_type>(xrt_core::dlsym(handle, "counter_action_read")) ;
-      if (xrt_core::dlerror() != NULL) counter_action_read_cb = nullptr ;
-      
       counter_action_write_cb = reinterpret_cast<write_type>(xrt_core::dlsym(handle, "counter_action_write")) ;
-      if (xrt_core::dlerror() != NULL) counter_action_write_cb = nullptr ;
-
       counter_mark_objects_released_cb = reinterpret_cast<release_type>(xrt_core::dlsym(handle, "counter_mark_objects_released")) ;
-      if (xrt_core::dlerror() != NULL) counter_mark_objects_released_cb = nullptr ;
+
 
       // For logging counter information for compute unit executions
       xocl::add_command_start_callback(xocl::profile::log_cu_start) ;
@@ -155,10 +142,8 @@ namespace xocl {
                             register_opencl_counters_functions,
                             opencl_counters_warning_function) ;
     }
-    
-  } // end namespace profile
   
-} // end namespace xocl
+} // end namespace xocl::profile
 
 // This anonymous namespace is for helper functions used in this file
 namespace {
@@ -191,8 +176,7 @@ namespace {
 
 } // end anonymous namespace
 
-namespace xocl {
-  namespace profile {
+namespace xocl::profile {
 
     // ******** OpenCL Counter/Guidance Callbacks *********
 
@@ -752,5 +736,4 @@ namespace xocl {
           }
         } ;
     }
-  } // end namespace profile
-} // end namespace xocl
+} // end namespace xocl::profile
