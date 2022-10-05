@@ -1,5 +1,6 @@
 /**
  * Copyright (C) 2016-2021 Xilinx, Inc
+ * Copyright (C) 2022 Advanced Micro Devices, Inc. - All rights reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License"). You may
  * not use this file except in compliance with the License. A copy of the
@@ -94,33 +95,19 @@ namespace opencl_trace {
                                    size_t, size_t, size_t, size_t) ;
 
     function_start_cb =
-      reinterpret_cast<func_type>(xrt_core::dlsym(handle, "function_start")) ;
-    if (xrt_core::dlerror() != NULL) function_start_cb = nullptr ;
-
+      reinterpret_cast<func_type>(xrt_core::dlsym(handle, "function_start"));
     function_end_cb =
-      reinterpret_cast<func_type>(xrt_core::dlsym(handle, "function_end")) ;
-    if (xrt_core::dlerror() != NULL) function_end_cb = nullptr ;
-
+      reinterpret_cast<func_type>(xrt_core::dlsym(handle, "function_end"));
     dependency_cb =
-      reinterpret_cast<dep_type>(xrt_core::dlsym(handle, "add_dependency")) ;
-    if (xrt_core::dlerror() != NULL) dependency_cb = nullptr ;
-
+      reinterpret_cast<dep_type>(xrt_core::dlsym(handle, "add_dependency"));
     read_cb =
-      reinterpret_cast<transfer_type>(xrt_core::dlsym(handle, "action_read")) ;
-    if (xrt_core::dlerror() != NULL) read_cb = nullptr ;
-
+      reinterpret_cast<transfer_type>(xrt_core::dlsym(handle, "action_read"));
     write_cb =
-      reinterpret_cast<transfer_type>(xrt_core::dlsym(handle, "action_write")) ;
-    if (xrt_core::dlerror() != NULL) write_cb = nullptr ;
-
+      reinterpret_cast<transfer_type>(xrt_core::dlsym(handle, "action_write"));
     copy_cb =
-      reinterpret_cast<copy_type>(xrt_core::dlsym(handle, "action_copy")) ;
-    if (xrt_core::dlerror() != NULL) copy_cb = nullptr ;
-
-
+      reinterpret_cast<copy_type>(xrt_core::dlsym(handle, "action_copy"));
     ndrange_cb =
       reinterpret_cast<ndrange_type>(xrt_core::dlsym(handle, "action_ndrange"));
-    if (xrt_core::dlerror() != NULL) ndrange_cb = nullptr ;
   }
 
   void opencl_trace_warning_function()
@@ -150,11 +137,8 @@ namespace device_offload {
 
     update_device_cb =
       reinterpret_cast<cb_type>(xrt_core::dlsym(handle, "updateDeviceOpenCL"));
-    if (xrt_core::dlerror() != NULL) update_device_cb = nullptr ;
-
     flush_device_cb =
-      reinterpret_cast<cb_type>(xrt_core::dlsym(handle, "flushDeviceOpenCL")) ;
-    if (xrt_core::dlerror() != NULL) flush_device_cb = nullptr ;
+      reinterpret_cast<cb_type>(xrt_core::dlsym(handle, "flushDeviceOpenCL"));
   }
 
   void device_offload_warning_function()
@@ -173,8 +157,7 @@ namespace device_offload {
 } // end namespace device_offload
 } // end namespace xdp
 
-namespace xocl {
-  namespace profile {
+namespace xocl::profile {
 
     // ******** OpenCL API Trace Callbacks *********
     OpenCLAPILogger::OpenCLAPILogger(const char* function) :
@@ -763,5 +746,4 @@ namespace xocl {
 	xdp::device_offload::update_device_cb(handle) ;
     }
 
-  } // end namespace profile
-} // end namespace xocl
+} // end namespace xocl::profile

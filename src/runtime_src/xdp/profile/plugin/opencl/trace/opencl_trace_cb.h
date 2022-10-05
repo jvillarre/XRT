@@ -1,5 +1,6 @@
 /**
  * Copyright (C) 2016-2020 Xilinx, Inc
+ * Copyright (C) 2022 Advanced Micro Devices, Inc. - All rights reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License"). You may
  * not use this file except in compliance with the License. A copy of the
@@ -19,23 +20,29 @@
 
 #include <cstdlib>
 
+#include "xdp/config.h"
+
 // These are the functions that are visible when the plugin is dynamically
 //  linked in.  XRT should call them directly.
-extern "C" 
+extern "C"
+XDP_EXPORT
 void function_start(const char* functionName, 
                     unsigned long long int queueAddress, 
                     unsigned long long int functionID);
 
 extern "C"
+XDP_EXPORT
 void function_end(const char* functionName, 
                   unsigned long long int queueAddress,
                   unsigned long long int functionID);
 
 extern "C"
+XDP_EXPORT
 void add_dependency(unsigned long long int id,
                     unsigned long long int dependency) ;
 
 extern "C"
+XDP_EXPORT
 void action_read(unsigned long long int id,
                  bool isStart,
                  unsigned long long int deviceAddress,
@@ -44,6 +51,7 @@ void action_read(unsigned long long int id,
                  bool isP2P) ;
 
 extern "C"
+XDP_EXPORT
 void action_write(unsigned long long int id,
                   bool isStart,
                   unsigned long long int deviceAddress,
@@ -52,6 +60,7 @@ void action_write(unsigned long long int id,
                   bool isP2P) ;
 
 extern "C"
+XDP_EXPORT
 void action_copy(unsigned long long int id,
                  bool isStart,
                  unsigned long long int srcDeviceAddress,
@@ -62,6 +71,7 @@ void action_copy(unsigned long long int id,
                  bool isP2P) ;
 
 extern "C"
+XDP_EXPORT
 void action_ndrange(unsigned long long int id,
                     bool isStart,
                     const char* deviceName,
