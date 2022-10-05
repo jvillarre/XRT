@@ -1,5 +1,6 @@
 /**
  * Copyright (C) 2016-2020 Xilinx, Inc
+ * Copyright (C) 2022 Advanced Micro Devices, Inc. - All rights reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License"). You may
  * not use this file except in compliance with the License. A copy of the
@@ -44,23 +45,18 @@ namespace lop {
 
   void register_functions(void* handle)
   {
-    typedef void (*ftype)(const char*, long long int, unsigned long long int) ;
-    function_start_cb = (ftype)(xrt_core::dlsym(handle, "lop_function_start")) ;
-    if (xrt_core::dlerror() != NULL) function_start_cb = nullptr ;    
+    using fType = void (*)(const char*, long long int, unsigned long long int);
+    using bType = void (*)(unsigned int, bool);
 
-    function_end_cb = (ftype)(xrt_core::dlsym(handle, "lop_function_end"));
-    if (xrt_core::dlerror() != NULL) function_end_cb = nullptr ;
+    function_start_cb =
+      reinterpret_cast<fType>(xrt_core::dlsym(handle, "lop_function_start"));
+    function_end_cb =
+      reinterpret_cast<fType>(xrt_core::dlsym(handle, "lop_function_end"));
+    read_cb = reinterpret_cast<bType>(xrt_core::dlsym(handle, "lop_read"));
+    write_cb = reinterpret_cast<bType>(xrt_core::dlsym(handle, "lop_write"));
+    enqueue_cb =
+      reinterpret_cast<bType>(xrt_core::dlsym(handle, "lop_kernel_enqueue"));
 
-    typedef void (*btype)(unsigned int, bool) ;
-
-    read_cb = (btype)(xrt_core::dlsym(handle, "lop_read")) ;
-    if (xrt_core::dlerror() != NULL) read_cb = nullptr ;
-    
-    write_cb = (btype)(xrt_core::dlsym(handle, "lop_write")) ;
-    if (xrt_core::dlerror() != NULL) write_cb = nullptr ;
-
-    enqueue_cb = (btype)(xrt_core::dlsym(handle, "lop_kernel_enqueue")) ;
-    if (xrt_core::dlerror() != NULL) enqueue_cb = nullptr ;
   }
 
   void warning_function()

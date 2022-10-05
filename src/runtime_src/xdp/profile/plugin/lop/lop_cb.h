@@ -1,5 +1,6 @@
 /**
  * Copyright (C) 2016-2020 Xilinx, Inc
+ * Copyright (C) 2022 Advanced Micro Devices, Inc. - All rights reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License"). You may
  * not use this file except in compliance with the License. A copy of the
@@ -17,23 +18,30 @@
 #ifndef LOW_OVERHEAD_CALLBACKS_DOT_H
 #define LOW_OVERHEAD_CALLBACKS_DOT_H
 
+#include "xdp/config.h"
+
 // These are the functions that are visible when the plugin is dynamically
 //  linked in.  XRT should call them directly.
-extern "C" 
+extern "C"
+XDP_EXPORT
 void lop_function_start(const char* functionName, long long queueAddress, 
 			unsigned long long int functionID);
 
 extern "C"
+XDP_EXPORT
 void lop_function_end(const char* functionName, long long queueAddress,
 		      unsigned long long int functionID);
 
 extern "C"
+XDP_EXPORT
 void lop_read(unsigned int XRTEventId, bool isStart) ;
 
 extern "C"
+XDP_EXPORT
 void lop_write(unsigned int XRTEventId, bool isStart) ;
 
 extern "C"
+XDP_EXPORT
 void lop_kernel_enqueue(unsigned int XRTEventId, bool isStart) ;
 
 // Since both OpenCL and LOP profiling can be turned on at the same time,
