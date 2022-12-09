@@ -1523,6 +1523,78 @@ namespace xdp {
     fout << aveLatency << ",\n";
   }
 
+  void SummaryWriter::writeDataTransfersFromAllMonitors()
+  {
+    fout << "TITLE:Data Transfers From All Monitors\n";
+    fout << "SECTION:Memory Data Transfers,All Transfers\n" ;
+    fout << "COLUMN:<html>Write Bytes</html>,int,"
+         << "Total number of bytes observed to be written,\n" ;
+    fout << "COLUMN:<html>Write Transactions</html>,int,"
+         << "Number of transactions observed to be written,\n" ;
+    fout << "COLUMN:<html>Write Latency</html>,int,"
+         << "Average latency of a write,\n" ;
+    fout << "COLUMN:<html>Write Min Latency</html>,int,"
+         << "Minimum observed write latency,\n" ;
+    fout << "COLUMN:<html>Write Max Latency</html>,int,"
+         << "Maximum observed write latency,\n" ;
+
+    fout << "COLUMN:<html>Read Bytes</html>,int,"
+         << "Total number of bytes observed to be read,\n" ;
+    fout << "COLUMN:<html>Read Transactions</html>,int,"
+         << "Number of transactions observed to be read,\n" ;
+    fout << "COLUMN:<html>Read Latency</html>,int,"
+         << "Average latency of a read,\n" ;
+    fout << "COLUMN:<html>Read Min Latency</html>,int,"
+         << "Minimum observed read latency,\n" ;
+    fout << "COLUMN:<html>Read Max Latency</html>,int,"
+         << "Maximum observed read latency,\n" ;
+
+    fout << "COLUMN:<html>Read Busy Cycles</html>,int,"
+         << "Number of cycles that reads were occurring,\n" ;
+    fout << "COLUMN:<html>Write Busy Cycles</html>,int,"
+         << "Number of cycles that writes were occurring,\n" ;
+
+
+    std::vector<DeviceInfo*> infos = db->getStaticInfo().getDeviceInfos();
+    for (auto device : infos) {
+      for (auto xclbin : device->loadedXclbins) {
+        xdp::CounterResults values =
+          db->getDynamicInfo().getCounterResults(device->deviceId,xclbin->uuid);
+
+        for (auto monitor : xclbin->pl.aims) {
+          auto monitorSlot = monitor->slotIndex;
+
+          uint64_t writeBytes = values.WriteBytes[monitorSlot];
+          uint64_t writeTranx = values.WriteTranx[monitorSlot];
+          uint64_t writeLatency = values.WriteLatency[monitorSlot];
+          uint64_t writeMinLatency = values.WriteMinLatency[monitorSlot];
+          uint64_t writeMaxLatency = values.WriteMaxLatency[monitorSlot];
+          uint64_t readBytes = values.ReadBytes[monitorSlot];
+          uint64_t readTranx = values.ReadTranx[monitorSlot];
+          uint64_t readLatency = values.ReadLatency[monitorSlot];
+          uint64_t readMinLatency = values.ReadMinLatency[monitorSlot];
+          uint64_t readMaxLatency = values.ReadMaxLatency[monitorSlot];
+          uint64_t readBusyCycles = values.ReadBusyCycles[monitorSlot];
+          uint64_t writeBusyCycles = values.WriteBusyCycles[monitorSlot];
+
+          fout << "ENTRY:";
+          fout << writeBytes      << ",";
+          fout << writeTranx      << ",";
+          fout << writeLatency    << ",";
+          fout << writeMinLatency << ",";
+          fout << writeMaxLatency << ",";
+          fout << readBytes       << ",";
+          fout << readTranx       << ",";
+          fout << readLatency     << ",";
+          fout << readMinLatency  << ",";
+          fout << readMaxLatency  << ",";
+          fout << readBusyCycles  << ",";
+          fout << writeBusyCycles << ",\n";
+        }
+      }
+    }
+  }
+
   void SummaryWriter::writeDataTransferKernelsToGlobalMemory()
   {
     // Only print out the table if there are any AIMs in any of the xclbins
@@ -1860,6 +1932,7 @@ namespace xdp {
       writeTopDataTransferKernelAndGlobal() ;            fout << "\n" ;
       writeDataTransferGlobalMemoryToGlobalMemory() ;    fout << "\n" ;
       writeComputeUnitStallInformation() ;               fout << "\n" ;
+      writeDataTransfersFromAllMonitors() ;              fout << "\n" ;
     }
 
     if (db->infoAvailable(info::user)) {

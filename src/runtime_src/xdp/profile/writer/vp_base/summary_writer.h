@@ -71,6 +71,8 @@ namespace xdp {
     void writeDataTransferGlobalMemoryToGlobalMemory() ;
     void writeComputeUnitUtilization() ;
 
+    void writeDataTransfersFromAllMonitors();
+
     // Helper function for the kernel data transfer table
     void writeSingleDataTransfer(const std::string& deviceName,
                                  const std::string& computeUnitName,
