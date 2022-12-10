@@ -1861,6 +1861,10 @@ namespace xdp {
       portName = name.substr(pos+1, pos1-pos-1);
     }
 
+    // Convert portName to all lower case
+    auto tolower = [](char c) { return static_cast<char>(std::tolower(c));};
+    std::transform(portName.begin(), portName.end(), portName.begin(), tolower);
+
     ComputeUnitInstance* cuObj = nullptr ;
     int32_t cuId = -1 ;
     int32_t memId = -1;
