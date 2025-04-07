@@ -8,6 +8,7 @@ set(XRT_XRT_HEADER_SRC
   xrt_graph.h
   xrt_hw_context.h
   xrt_kernel.h
+  xrt_profile.h
   xrt_uuid.h)
 
 # base component install

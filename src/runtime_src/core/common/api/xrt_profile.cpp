@@ -1,7 +1,6 @@
 /*
  * Copyright (C) 2020-2022, Xilinx Inc - All rights reserved
- * Copyright (C) 2022-2023 Advanced Micro Devices, Inc. - All rights reserved
- * Xilinx Runtime (XRT) Experimental APIs
+ * Copyright (C) 2022-2025 Advanced Micro Devices, Inc. - All rights reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License"). You may
  * not use this file except in compliance with the License. A copy of the
@@ -17,7 +16,7 @@
  */
 
 // This file implements XRT kernel APIs as declared in 
-// core/include/experimental/xrt_profile.h
+// core/include/xrt/xrt_profile.h
 
 #define XCL_DRIVER_DLL_EXPORT 
 #define XRT_CORE_COMMON_SOURCE
@@ -28,53 +27,76 @@
 #include "core/common/module_loader.h"
 #include "core/common/utils.h"
 
+#include <cstdint>
 #include <functional>
 #include <mutex>
 
 namespace xrt::profile {
 
+class user_range_impl
+{
+private:
+  uint32_t m_id;
+  bool m_active;
+public:
+  user_range_impl()                                  = delete;
+  user_range_impl(const user_range_impl&)            = delete;
+  user_range_impl(user_range_impl&&)                 = delete;
+  user_range_impl& operator=(const user_range_impl&) = delete;
+  user_range_impl& operator=(user_range_impl&&)      = delete;
+
+  explicit user_range_impl(uint32_t id, bool active) :
+      m_id(id)
+    , m_active(active)
+  {}
+  ~user_range_impl() = default;
+
+  inline bool get_active()        { return m_active; }
+  inline uint32_t get_id()        { return m_id; }
+  inline void set_active(bool v)  { m_active = v; }
+  inline void set_id(uint32_t id) { m_id = id; }
+};
+
 user_range::
 user_range(const char* label, const char* tooltip)
-: id(static_cast<uint32_t>(xrt_core::utils::issue_id()))
-, active(true)
+  : detail::pimpl<user_range_impl>(std::make_shared<user_range_impl>(static_cast<uint32_t>(xrt_core::utils::issue_id()), true))
 {
-  xrtURStart(id, label, tooltip);
+  xrtURStart(handle->get_id(), label, tooltip);
 }
 
 user_range::
 user_range()
-: id(0)
-, active(false)
+  : detail::pimpl<user_range_impl>(std::make_shared<user_range_impl>(0, false))
 {}
 
 user_range::
 ~user_range()
 {
-  if (active)
-    xrtUREnd(id);
+  if (handle->get_active())
+    xrtUREnd(handle->get_id());
 }
 
 void user_range::
 start(const char* label, const char* tooltip)
 {
   // Handle case where start is called while started
-  if (active)
-    xrtUREnd(id);
+  if (handle->get_active())
+    xrtUREnd(handle->get_id());
 
-  id = static_cast<uint32_t>(xrt_core::utils::issue_id());
-  xrtURStart(id, label, tooltip);
-  active = true;
+  handle->set_id(static_cast<uint32_t>(xrt_core::utils::issue_id()));
+  xrtURStart(handle->get_id(), label, tooltip);
+  handle->set_active(true);
 }
 
 void user_range::
 end()
 {
   // Handle case when end when not tracking time
-  if (!active)
+  if (!handle->get_active())
     return;
 
-  xrtUREnd(id);
-  active = false;
+  xrtUREnd(handle->get_id());
+  handle->set_active(false);
 }
 
 user_event::
